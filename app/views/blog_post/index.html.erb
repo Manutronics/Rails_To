@@ -1,0 +1,10 @@
+<h1>My New Blog</h1>
+
+<% @blog_posts.each do |post| %>
+  <div>
+    <h2><%= link_to post.title, "/blog_post/#{post.id}" %></h2>
+  </div>
+  <div>
+    <ul><%= post.body %></ul>
+  </div>
+<% end %>
