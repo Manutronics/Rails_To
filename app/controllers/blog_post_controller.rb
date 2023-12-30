@@ -1,12 +1,11 @@
 class BlogPostController < ApplicationController
+    before_action :set_blog_post, only: [:edit, :show, :update, :destroy] #or except: [:index, :new, :create]
+
     def index
         @blog_posts = BlogPost.all
     end
 
     def show
-        @blog_post = BlogPost.find(params[:id])
-    rescue ActiveRecord::RecordNotFound
-        redirect_to root_path
     end
 
     def new
@@ -23,11 +22,9 @@ class BlogPostController < ApplicationController
     end
 
     def edit
-        @blog_post = BlogPost.find(params[:id])
     end
 
     def update
-        @blog_post = BlogPost.find(params[:id])
         if @blog_post.update(blog_post_params)
             redirect_to root_path, notice: "Post successfully updated!"
         else
@@ -36,7 +33,6 @@ class BlogPostController < ApplicationController
     end
 
     def destroy
-        @blog_post = BlogPost.find(params[:id])
         @blog_post.destroy
         redirect_to root_path
     end
@@ -44,5 +40,11 @@ class BlogPostController < ApplicationController
     private
     def blog_post_params
         params.require(:blog_post).permit(:body, :title)
+    end
+
+    def set_blog_post
+        @blog_post = BlogPost.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+        redirect_to root_path
     end
 end
