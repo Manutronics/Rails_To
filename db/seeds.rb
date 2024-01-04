@@ -43,3 +43,9 @@ user.update!(
 #     language we can use for building ESP32 applications. We can also use C++ and
 #     assembly.", published_at: Time.current)
 # end
+
+
+# 10.times do |i|
+#   @blog_post = BlogPost.where(title: "Blog Numero #{i}").first_or_initialize
+#   blog_post.update(published_at: Time.current)
+# end
