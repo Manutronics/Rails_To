@@ -11,6 +11,8 @@
     <ul><%= post.filtered_content().html_safe %></ul>
   </div>
 <% end %>
-<div class="mt-16"> 
-  <%== pagy_nav(@pagy) %>
-</div>
+<% if @pagy.count > @pagy.items %>
+  <div class="mt-16"> 
+    <%== pagy_nav(@pagy) %>
+  </div>
+<% end %>
