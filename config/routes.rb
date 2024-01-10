@@ -12,7 +12,9 @@ Rails.application.routes.draw do
   #get "/blog_post/:id/edit", to: "blog_post#edit", as: :edit_blog_post
   #post "/blog_post", to: "blog_post#create", as: :blog_posts
 
-  resources :blog_post, as: :blog_posts
+  resources :blog_post do
+    resource :cover_image, only: [:destroy], module: :blog_post
+  end
 
   # Defines the root path route ("/")
   root "blog_post#index"
