@@ -73,3 +73,7 @@ gem "tailwindcss-rails", "~> 2.1"
 gem "pagy", "~> 6.2"
 
 gem "aws-sdk-s3", require: false
+
+gem "dockerfile-rails", ">= 1.6", :group => :development
+
+gem "pg", "~> 1.5"
