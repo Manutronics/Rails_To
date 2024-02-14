@@ -1,5 +1,6 @@
 {
   "dependencies": {
     "stimulus-password-visibility": "^2.1.1"
-  }
+  },
+  "packageManager": "yarn@1.22.21"
 }
