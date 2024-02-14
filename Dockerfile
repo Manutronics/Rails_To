@@ -49,6 +49,7 @@ RUN yarn install --frozen-lockfile
 
 # Copy application code
 COPY --link . .
+COPY release.sh /release.sh
 
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
