@@ -2,26 +2,24 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version and Gemfile
 ARG RUBY_VERSION=3.2.2
-FROM ruby:$RUBY_VERSION-slim as base
+FROM ruby:$RUBY_VERSION-slim
 
 LABEL fly_launch_runtime="rails"
 
 # Rails app lives here
 WORKDIR /rails
 
+ARG RAILS_MASTER_KEY
 # Set production environment
 ENV BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development:test" \
-    RAILS_ENV="production"
+    RAILS_ENV="production" \
+    RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
 
 # Update gems and bundler
 RUN gem update --system --no-document && \
     gem install -N bundler
-
-
-# Throw-away build stage to reduce size of final image
-FROM base as build
 
 # Install packages needed to build gems and node modules
 RUN apt-get update -qq && \
@@ -39,7 +37,6 @@ RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz
 # Install application gems
 COPY --link Gemfile Gemfile.lock ./
 RUN bundle install && \
-    bundle exec bootsnap precompile --gemfile && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
 
 # Install node modules
@@ -49,35 +46,16 @@ RUN yarn install --frozen-lockfile
 
 # Copy application code
 COPY --link . .
-COPY release.sh /release.sh
 
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
-
-# Adjust binfiles to be executable on Linux
-RUN sed -i "s/\r$//g" bin/* && \
-    sed -i 's/ruby\r/ruby/' bin/* && \
-    sed -i 's/ruby\.exe\r$/ruby/' bin/*
-
-ARG RAILS_MASTER_KEY
-# Set production environment
-ENV RAILS_ENV="production" \
-    BUNDLE_WITHOUT="development:test" \
-    BUNDLE_DEPLOYMENT="1" \
-    RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
-
-
-# Final stage for app image
-FROM base
 
 # Install packages needed for deployment
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl imagemagick libsqlite3-0 libvips postgresql-client && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Copy built artifacts: gems, application
-COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
-COPY --from=build /rails /rails
+RUN bundle exec rake assets:precompile
 
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
